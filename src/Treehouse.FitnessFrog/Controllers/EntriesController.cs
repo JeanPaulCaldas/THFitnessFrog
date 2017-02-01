@@ -45,7 +45,7 @@ namespace Treehouse.FitnessFrog.Controllers
         }
 
         [HttpPost]
-        public ActionResult Add(string Date, string ActivityId, string Duration, string Intensity, string Exclude, string Notes)
+        public ActionResult Add(DateTime? Date, int? ActivityId, double? Duration, Entry.IntensityLevel? Intensity, bool? Exclude, string Notes)
         {
             ViewBag.Date = Date;
             ViewBag.ActivityId = ActivityId;
