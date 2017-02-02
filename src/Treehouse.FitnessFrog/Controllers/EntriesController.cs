@@ -46,18 +46,14 @@ namespace Treehouse.FitnessFrog.Controllers
                 Date = DateTime.Today
             };
 
-            ViewBag.ActivitiesListItems = new SelectList(Data.Data.Activities, "Id", "Name");
-
+            SetUpActivitiesSelectListItems();
             return View(entry);
         }
 
         [HttpPost]
         public ActionResult Add(Entry entry)
         {
-            //  Si no hay errores de validacion del campo "Duration" en ModelState 
-            //  Se debe validar que el valor sea mayor que 0
-            if (ModelState.IsValidField("Duration") && entry.Duration <= 0)
-                ModelState.AddModelError("Duration", "The duration field value must be greater than '0'.");
+            EntryValidation(entry);
 
             if (ModelState.IsValid)
             {
@@ -66,7 +62,7 @@ namespace Treehouse.FitnessFrog.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ActivitiesListItems = new SelectList(Data.Data.Activities, "Id", "Name");
+            SetUpActivitiesSelectListItems();
             return View(entry);
         }
 
@@ -76,8 +72,30 @@ namespace Treehouse.FitnessFrog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+            Entry entry = _entriesRepository.GetEntry((int)id);
 
-            return View();
+            if (entry == null)
+                return HttpNotFound();
+
+            SetUpActivitiesSelectListItems();
+            return View(entry);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(Entry entry)
+        {
+            EntryValidation(entry);
+
+            if (ModelState.IsValid)
+            {
+                _entriesRepository.UpdateEntry(entry);
+
+                return RedirectToAction("Index");
+            }
+
+            SetUpActivitiesSelectListItems();
+
+            return View(entry);
         }
 
         public ActionResult Delete(int? id)
@@ -88,6 +106,19 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             return View();
+        }
+
+        private void EntryValidation(Entry entry)
+        {
+            //  Si no hay errores de validacion del campo "Duration" en ModelState 
+            //  Se debe validar que el valor sea mayor que 0
+            if (ModelState.IsValidField("Duration") && entry.Duration <= 0)
+                ModelState.AddModelError("Duration", "The duration field value must be greater than '0'.");
+        }
+
+        private void SetUpActivitiesSelectListItems()
+        {
+            ViewBag.ActivitiesListItems = new SelectList(Data.Data.Activities, "Id", "Name");
         }
     }
 }
